@@ -3,7 +3,7 @@
 
 __Name:__ Ty Misiorek, Suwan Lee, Nathan Kim, Hajar Davaz, Micah Fossett
 
-__Computing ID:__ zem4by, uty2zp, ajp2zu, xuj4aw, bvd9wa
+In this project, I worked as the Scrum Master, leading the team through the development process of the application and keeping everyone on track.
 
 **How to Use:** You can access the project at the link: https://cs3240-f24-b-07-29a08618e5ca.herokuapp.com/. You can login through Google OAuth and look through existing research teams, request to join existing teams, and create your own teams as well. In these teams, you can upload your own files (.jpg, .txt, .pdf), view these files, add milestones to the project, add times you are available to meet in the calendar, and chat with other team members. PMA Administrators can access all content posted in the PMA, however, cannot create/join their own teams and have restricted permissions on some of the features. 
 
