@@ -1,0 +1,100 @@
+<!-- 
+*  REFERENCES
+*  Title: Bootstrap Documentation
+*  Author: Bootstrap
+*  Date: 12/3/2024
+*  URL: https://getbootstrap.com/docs/5.3/components/alerts/
+*  Use: Help with making the alerts auto dismiss after x seconds so we dont need to manually close them
+*
+*  Title: Django Documentation
+*  Author: Django
+*  URL: https://docs.djangoproject.com/en/5.1/ref/templates/language/
+*  Use: Used as general reference for a lot of the html spread throughout the pma. 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Research Management{% endblock %}</title>
+    
+    <!-- Include Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- Custom CSS for styling -->
+
+    {% block extra_css %}{% endblock %} <!-- Custom CSS block for child templates -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <a class="navbar-brand font-weight-bold" href="{% url 'home' %}">Research Hub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto"> <!-- Changed 'ml-auto' to 'ms-auto' for Bootstrap 5 -->
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu"> <!-- Changed 'div' to 'ul' and 'dropdown-menu-right' to 'dropdown-menu-end' -->
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4 pb-5">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2024 Research Hub. This is a class project. No real information should be submitted.</span>
+        </div>
+    </footer>
+
+    <!-- Include Bootstrap 5 JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Auto dismiss alerts so they dont pile -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ALERT_DISMISS_TIME = 3000;
+            
+            const alerts = document.querySelectorAll('.alert');
+            
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);                    
+                    bsAlert.close();
+                }, ALERT_DISMISS_TIME);
+            });
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

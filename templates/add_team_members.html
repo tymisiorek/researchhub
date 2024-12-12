@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Add Team Members{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Add Members to {{ team.name }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Add Members</button>
+    </form>
+    <a href="{% url 'team_detail' team.id %}" class="btn btn-secondary mt-3">Back to Team Details</a>
+</div>
+{% endblock %}

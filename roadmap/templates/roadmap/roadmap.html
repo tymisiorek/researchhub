@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Your Roadmap{% endblock %}
+
+{% block content %}
+<h1>Your Roadmap</h1>
+{% if not is_pma_admin %}
+    <a href="{% url 'add_team_milestone' team_id=team.id %}" class="btn btn-primary mb-3">Add Milestone</a>
+{% endif %}
+{% if milestones %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Progress</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for milestone in milestones %}
+            <tr>
+                <td>{{ milestone.title }}</td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ milestone.progress }}%;" aria-valuenow="{{ milestone.progress }}" aria-valuemin="0" aria-valuemax="100">{{ milestone.progress }}%</div>
+                    </div>
+                </td>
+                <td>{{ milestone.start_date }}</td>
+                <td>{{ milestone.end_date }}</td>
+                <td>
+                    {% if milestone.completed %}
+                        <span class="badge bg-success">Complete</span>
+                    {% else %}
+                        <span class="badge bg-warning">In Progress</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not milestone.completed%}
+                        <a href="{% url 'mark_milestone_complete' team_id=team.id milestone_id=milestone.pk %}" class="btn btn-sm btn-success">Mark Complete</a>
+                    {% endif %}
+                    <a href="{% url 'edit_team_milestone' team_id=team.id milestone_id=milestone.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+                    <a href="{% url 'delete_team_milestone' team_id=team.id milestone_id=milestone.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>You have no milestones. Start by <a href="{% url 'add_team_milestone' team_id=team.id %}">adding one</a>.</p>
+{% endif %}
+{% endblock %}

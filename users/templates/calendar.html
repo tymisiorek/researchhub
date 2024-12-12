@@ -1,0 +1,59 @@
+<!-- users/templates/calendar.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ team.name }}'s Availability Calendar{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/calendar.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/timegrid/main.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h1 class="text-center">{{ team.name }}'s Availability Calendar</h1>
+        <!-- Pass team_id via data attribute -->
+        <div id="calendar" data-team-id="{{ team.id }}"></div>
+    </div>
+
+    <!-- Modal for Adding Availability -->
+    <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="availabilityForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="availabilityModalLabel">Add Availability</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <input type="hidden" id="availability-date" name="date">
+                        <div class="mb-3">
+                            <label for="start-time" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="start-time" name="start_time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="end-time" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="end-time" name="end_time" required>
+                        </div>
+                        <div id="form-errors" class="text-danger"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Availability</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script>
+        var currentUsername = "{{ user.username }}";
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/timegrid/main.min.js"></script>
+    <script src="{% static 'js/calendar.js' %}"></script>
+{% endblock %}

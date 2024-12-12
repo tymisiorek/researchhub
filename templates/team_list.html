@@ -1,0 +1,69 @@
+<!-- team_list.html -->
+
+{% extends "base.html" %}
+
+{% block title %}All Teams{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>All Teams</h1>
+    
+    <!-- Show 'Create a New Team' button only to Common Users -->
+    {% if user.is_authenticated and user.profile.role == 'common' %}
+        <a href="{% url 'create_team' %}" class="btn btn-primary mb-3">Create a New Team</a>
+    {% endif %}
+    
+    <ul class="list-group">
+        {% for team in teams %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ team.name }}</strong> - {{ team.description }}
+                    
+                    <!-- Display role badges -->
+                    {% if team.is_owner %}
+                        <span class="badge bg-primary ms-2">Owner</span>
+                    {% elif team.membership_status == 'accepted' %}
+                        <span class="badge bg-success ms-2">Member</span>
+                    {% elif team.membership_status == 'pending' %}
+                        <span class="badge bg-warning ms-2">Requested</span>
+                    {% endif %}
+                    
+                    <!-- Additional badge for PMA Administrators viewing all teams -->
+                    {% if user.is_authenticated and user.profile.role == 'admin' %}
+                        <span class="badge bg-info ms-2">PMA Admin</span>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <!-- Details Button -->
+                    <a href="{% url 'team_detail' team.id %}" class="btn btn-secondary btn-sm">Details</a>
+                    
+                    <!-- Show 'Delete Team' button only to PMA Administrators -->
+                    {% if user.is_authenticated and user.profile.role == 'admin' %}
+                        <form method="post" action="{% url 'delete_team' team.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this team?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm mx-1">Delete Team</button>
+                        </form>
+                    {% endif %}
+                    
+                    <!-- Show 'Join Team' button to Common Users who are not members and not owners -->
+                    {% if user.is_authenticated and user.profile.role == 'common' %}
+                        {% if not team.is_owner and team.membership_status != 'accepted' %}
+                            {% if team.membership_status == 'pending' %}
+                                <button class="btn btn-warning btn-sm mx-1" disabled>Requested</button>
+                            {% else %}
+                                <form method="post" action="{% url 'join_team' team.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link btn-sm">Join Team</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No teams available.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

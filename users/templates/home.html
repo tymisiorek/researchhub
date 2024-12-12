@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Django Google Sign In{% endblock %}
+
+{% block content %}
+    {% load socialaccount %}
+
+    <!-- Google Login Section -->
+    <h2 class="text-center">Google Login</h2>
+    {% if not user.is_authenticated %}
+        <div class="text-center mt-4">
+            <a href="{% provider_login_url 'google' %}?next=/" class="btn btn-primary">Login With Google</a>
+        </div>
+    {% else %}
+        <!-- User Information -->
+        <p class="text-center mt-3">You are signed in as {{ user.email }}</p>
+        <p class="text-center mt-3">
+            Welcome, {{ user.first_name }}! You joined on {{ user.date_joined|date:"F j, Y" }}.
+        </p>
+
+        <!-- Role-Based Welcome Message -->
+        {% if is_admin %}
+            <h3 class="text-center text-success">Welcome, Administrator</h3>
+            <p class="text-center">This is your admin dashboard.</p>
+        {% elif is_common_user %}
+            <h3 class="text-center text-info">Welcome, Common User</h3>
+            <p class="text-center">This is your common user dashboard.</p>
+        {% else %}
+            <h3 class="text-center text-muted">Welcome!</h3>
+            <p class="text-center">You are not assigned to any specific role.</p>
+        {% endif %}
+
+        <!-- View Your Teams Button -->
+        <div class="text-center mt-3">
+            <a href="{% url 'team_list' %}" class="btn btn-primary" style="color: white;">View Your Teams</a>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="container mt-5">
+            <div class="row">
+                <!-- Messages Section -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header light-blue-header">
+                            <h5>Messages</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user_messages %}
+                                <ul class="list-group">
+                                    {% for message in user_messages %}
+                                        <li class="list-group-item">
+                                            <strong>{{ message.team.name }}</strong>: {{ message.content }}
+                                            <small class="text-muted float-end">{{ message.created_at|date:"M d, Y h:i A" }}</small>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>No messages available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestones Section -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header light-blue-header">
+                            <h5>Milestones</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user_milestones %}
+                                <ul class="list-group">
+                                    {% for milestone in user_milestones %}
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <strong>{{ milestone.title }}</strong>: {{ milestone.description }}
+                                                    <small class="text-muted">Due: {{ milestone.end_date|date:"M d, Y" }}</small>
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-info text-dark">{{ milestone.progress }}%</span>
+                                                </div>
+                                            </div>
+                                            <!-- Progress Bar -->
+                                            <div class="progress mt-2">
+                                                <div
+                                                    class="progress-bar progress-bar-striped {% if milestone.progress == 100 %}bg-success{% else %}bg-primary{% endif %}"
+                                                    role="progressbar"
+                                                    style="width: {{ milestone.progress }}%"
+                                                    aria-valuenow="{{ milestone.progress }}"
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="100"
+                                                >
+                                                    {{ milestone.progress }}%
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>No milestones available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Files Section -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header light-blue-header">
+                            <h5>Files</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user_files %}
+                                <ul class="list-group">
+                                    {% for file in user_files %}
+                                        <li class="list-group-item">
+                                            <strong>{{ file.title }}</strong> ({{ file.team.name }})
+                                            <a href="{% url 'serve_file' file.id %}" target="_self">{{ file.title }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>No files available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Groups Section -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header light-blue-header">
+                            <h5>Groups</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if user_teams %}
+                                <ul class="list-group">
+                                    {% for team in user_teams %}
+                                        <li class="list-group-item">
+                                            <a href="{% url 'team_detail' team.id %}">{{ team.name }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>No active groups.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,91 @@
+/* Main Calendar Container */
+#calendar {
+    max-width: 90%;
+    margin: 40px auto;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    font-family: 'Arial', sans-serif;
+}
+
+/* Toolbar Styling */
+.fc-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #333;
+    border-radius: 8px 8px 0 0;
+    color: #ffffff;
+}
+
+.fc-toolbar h2 {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #f0f0f0;
+}
+
+.fc-toolbar .fc-button {
+    background-color: #5b9bd5;
+    color: #ffffff;
+    border: none;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.fc-toolbar .fc-button:hover {
+    background-color: #4a89c6;
+}
+
+/* Calendar Grid Styling */
+.fc-dayGridMonth-view {
+    padding: 20px;
+}
+
+.fc-day {
+    border: 1px solid #e0e0e0;
+    min-height: 100px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.fc-day:hover {
+    background-color: #f9f9f9;
+}
+
+.fc-day-number {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #333333;
+}
+
+/* Events Styling */
+.fc-event {
+    background-color: #5b9bd5;
+    color: #ffffff;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.fc-event:hover {
+    background-color: #4a89c6;
+}
+
+.fc-today {
+    background-color: #e8f4fb;
+    border: 1px solid #5b9bd5;
+}
+
+.fc-day.fc-past {
+    background-color: #f7f7f7;
+}
+
+.fc-day.fc-future {
+    background-color: #ffffff;
+}

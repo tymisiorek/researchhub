@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Team Chat - {{ team.name }}</h2>
+
+    <div id="chat-box" class="border rounded p-3 mb-4">
+        {% for message in chat_messages %}
+        <div class="chat-message mb-2">
+            <span class="font-weight-bold text-primary">{{ message.user.username }}</span>: 
+            <span>{{ message.message }}</span>
+            <small class="text-muted float-right">
+                {{ message.created_at|date:"Y-m-d H:i:s" }}
+            </small>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted">No messages yet.</p>
+        {% endfor %}
+    </div>
+
+    <hr>
+    <form id="chat-form" method="post" onsubmit="return sendMessage();" class="d-flex flex-column">
+        <textarea id="chat-message" rows="3" class="form-control mb-3" placeholder="Type your message here..."></textarea>
+        <button type="submit" class="btn btn-primary btn-block">Send</button>
+    </form>
+</div>
+
+<style>
+    #chat-box {
+        height: 400px;
+        overflow-y: scroll;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+    }
+
+    .chat-message {
+        margin-bottom: 10px;
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .chat-message:last-child {
+        border-bottom: none;
+    }
+
+    #chat-form textarea {
+        resize: none;
+    }
+
+    #chat-form button {
+        margin-top: 10px;
+    }
+
+    .text-muted {
+        font-size: 0.85rem;
+    }
+</style>
+
+<script>
+    let lastMessageId = 0; // Initialize last message ID
+
+    function sendMessage() {
+        const messageContent = document.getElementById('chat-message').value.trim();
+        const teamId = "{{ team.id }}";
+
+        if (!messageContent) {
+            alert("Message cannot be empty");
+            return false;
+        }
+
+        fetch(`/team/${teamId}/chat/post/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ message: messageContent })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear the message input field
+                document.getElementById('chat-message').value = '';
+                // Append the new message to the chat box
+                appendMessage(data.message);
+            } else {
+                alert(data.error || "Failed to send message");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+        return false; // Prevent form from submitting normally
+    }
+
+    // Function to reload chat messages dynamically
+    function loadMessages() {
+        const teamId = "{{ team.id }}";
+
+        fetch(`/team/${teamId}/chat/`)
+            .then(response => response.json())
+            .then(data => {
+                data.messages.forEach(message => {
+                    appendMessage(message); // Add each new message
+                    lastMessageId = Math.max(lastMessageId, message.id); // Update the last message ID
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function appendMessage(message) {
+        const chatBox = document.getElementById('chat-box');
+        const newMessageDiv = document.createElement('div');
+        newMessageDiv.classList.add('chat-message', 'mb-2');
+        newMessageDiv.innerHTML = `
+            <span class="font-weight-bold text-primary">${message.user}</span>: 
+            <span>${message.content}</span>
+            <small class="text-muted float-right">${message.created_at}</small>
+        `;
+        chatBox.appendChild(newMessageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the latest message
+    }
+
+    // Optionally, auto-refresh chat messages every few seconds
+    setInterval(loadMessages, 5000);
+</script>
+{% endblock %}

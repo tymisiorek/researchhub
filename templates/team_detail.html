@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team.name }} Details{% endblock %}
+
+{% block content %}
+<div class="container my-5 pb-5"> <!-- Changed mt-5 mb-5 to my-5 and added pb-5 for extra bottom padding -->
+    <!-- Team Information -->
+    <h1 class="text-center">{{ team.name }}</h1>
+    <p class="text-center">{{ team.description }}</p>
+    <p class="text-center">
+        Created by: {{ team.created_by.username }} on {{ team.created_at }}
+    </p>
+
+    <!-- Check if the user is a member or a PMA Administrator -->
+    {% if is_member or user.profile.role == 'admin' %}
+        <!-- Team Members Section -->
+        <h2 class="mt-4 text-center">Team Members</h2>
+        <ul class="list-group mb-4">
+            {% for membership in members %}
+                <li class="list-group-item">
+                    {{ membership.user.username }} - {{ membership.role }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Team Files Section -->
+        <h2 class="mt-4 text-center">Team Files</h2>
+
+        <!-- Search Bar -->
+        <form method="GET" action="" class="mb-4">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="form-control" 
+                    placeholder="Search by keywords..." 
+                    value="{{ query|default_if_none:'' }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+
+        <ul class="list-group mb-4">
+            {% for file in files %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>
+                            <a href="{% url 'serve_file' file.id %}" target="_self">{{ file.title }}</a>
+                        </h5>
+                        <p>Description: {{ file.description }}</p>
+                        <p>Keywords: {{ file.keywords }}</p>
+                        <small>
+                            (Uploaded by {{ file.uploaded_by.username }} on {{ file.uploaded_at }})
+                        </small>
+                    </div>
+                    
+                    <!-- Delete File Button for Admins and File Owners -->
+                    {% if user.profile.role == 'admin' or file.uploaded_by == user %}
+                        <form method="post" action="{% url 'delete_file' file.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this file?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="list-group-item">No files match your search.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Upload File Section for Common Users Only -->
+        {% if user.profile.role == 'common' and is_member %}
+            <div class="mt-4">
+                <h3 class="text-center">Upload a New File</h3>
+                <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{% url 'upload_team_file' team.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.title.label_tag }}
+                        {{ form.title }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.file.label_tag }}
+                        {{ form.file }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.keywords.label_tag }}
+                        {{ form.keywords }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Upload File</button>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-center mt-4">
+            <a href="{% url 'team_roadmap' team.id %}" class="btn btn-secondary mx-2">Roadmap</a>
+            <a href="{% url 'calendar_view' team.id %}" class="btn btn-secondary mx-2">Go to Calendar</a>
+            <a href="{% url 'team_chat' team.id %}" class="btn btn-secondary mx-2">Go to Messages</a>
+        </div>
+
+        <!-- Leave Team Button for Common Users Only -->
+        {% if user.profile.role == 'common' and not is_owner %}
+            <div class="d-flex justify-content-center mt-4">
+                <form action="{% url 'leave_team' team.id %}" method="post" onsubmit="return confirm('Are you sure you want to leave this team?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Leave Team</button>
+                </form>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Non-Member View -->
+        <p class="text-center mt-4">You are not a member of this team.</p>
+    {% endif %}
+
+    <!-- Pending Membership Requests for Team Owners and PMA Administrators -->
+    {% if is_owner or user.profile.role == 'admin' %}
+        <h2 class="mt-4 text-center">Pending Membership Requests</h2>
+        {% if pending_requests %}
+            <ul class="list-group mb-4">
+                {% for membership in pending_requests %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ membership.user.username }}
+                        <div>
+                            <a href="{% url 'accept_membership_request' team.id membership.id %}" class="btn btn-success btn-sm mx-1">Accept</a>
+                            <a href="{% url 'reject_membership_request' team.id membership.id %}" class="btn btn-danger btn-sm mx-1">Reject</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-center">No pending membership requests.</p>
+        {% endif %}
+    {% endif %}
+
+    <!-- Back and Delete Buttons -->
+    <div class="d-flex justify-content-center mt-5 mb-5"> <!-- Added mb-5 to button container -->
+        <a href="{% url 'team_list' %}" class="btn btn-secondary mx-2">Back to Team List</a>
+        
+        <!-- Show 'Delete Team' button only to PMA Administrators and Team Owners -->
+        {% if is_owner or user.profile.role == 'admin' %}
+            <form action="{% url 'delete_team' team.id %}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this team?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger mx-2">Delete Team</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

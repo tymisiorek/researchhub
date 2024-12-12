@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5" style="padding-bottom: 50px;">
+    <h1>Upload File to Team: {{ team.name }}</h1>
+    
+    <!-- Display form errors -->
+    
+
+    <!-- Form for uploading files -->
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+        </div>
+        <div class="mb-3">
+            {{ form.file.label_tag }}
+            {{ form.file }}
+        </div>
+        <div class="mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+        <div class="mb-3">
+            {{ form.keywords.label_tag }}
+            {{ form.keywords }}
+        </div>
+        <button type="submit" class="btn btn-primary">Upload File</button>
+    </form>
+
+    <!-- List of all uploaded files for this team -->
+    <h2 class="mt-5">Uploaded Files for {{ team.name }}</h2>
+    <ul class="list-group">
+        {% for file in files %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>
+                            <a href="{% url 'serve_file' file.id %}" target="_self">{{ file.title }}</a>
+                        </h5>
+                        <p>Description: {{ file.description }}</p>
+                        <p>Keywords: {{ file.keywords }}</p>
+                        <small>
+                            (Uploaded by {{ file.uploaded_by.username }} on {{ file.uploaded_at }})
+                        </small>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="list-group-item">No files uploaded yet.</li>
+            {% endfor %}
+
+    </ul>
+</div>
+{% endblock %}

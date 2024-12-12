@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Team List</title>
+
+    <!-- Include Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <!-- Custom CSS for additional styling -->
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <a class="navbar-brand fw-bold" href="#">Research Hub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Public Team List</h1>
+        <ul class="list-group">
+            {% for team in teams %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ team.name }}</strong>
+                        <p class="mb-0 text-muted">Created by: {{ team.created_by.get_full_name }}</p>
+                    </div>
+                </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-center">No teams available.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Button to go back to the login page -->
+        <div class="text-center mt-4">
+            <a href="{% url 'account_login' %}" class="btn btn-primary" style="color: white;">Back to Login</a>
+        </div>
+
+    </div>
+
+    <div class="container mt-4 pb-5">
+        {% block content %}{% endblock %}
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light text-center">
+        <div class="container">
+            <span class="text-muted">&copy; 2024 Research Hub. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Include Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
